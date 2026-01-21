@@ -1,0 +1,12 @@
+Okay . I need slight changes on my system . let me explain. Flutter App sends device_id and image file to the Node Backend. Here device_id is for unique user. After that node backend store it (this is the original picture) and send the image file (not image link) also the source_id to the Python server. Python server take the file and source_id and the generate cartoon based on the image and then send the generated cartoon image file (not image link) also the source_id to the node backend. After that node backend store the image and then send the image link to flutter. In flutter app, user can regenerate image multiple time. after regenerate there will be 3-4 photos that he generated. then he will select 1 image and he can download it . When he will select a image and proceed to download  it will go to the Node server. Node server will send it to the phython server. python server take the image url and then download the image he only cut the face from the images and then send it back to the node server. then node server will store it based on the given original images. That means user give the image then he will regenerate multiple times then download only 1. so the original and the downloaded image url will we stored in the db. First image upload to download there will generated more images it will not store db and it will also delete from the file. I hope you understand. So give me the best architecture and db design   first and /docs. if you have any clarification then ask me. 
+
+
+1. no need source_id
+2. yes images files, node server will store it then send the url link to the flutter frontend.
+3. Receive image url and return image file (face-cut) . the processed image url will be stored permanenly.
+
+4. I deploy my server in VPS. so do it on that way. File na,e timestapm
+5. as the user want
+6. Yes regenered imaged will be stored remporairly and deleted when the one image is download from the multiple image. 
+
+also take a note. the will I need another two api. where will show all the original images that will he use and download face cut images
