@@ -10,11 +10,6 @@ export const getAllDownloadedFaces = async (req, res, next) => {
         const downloadedFaces = await DownloadedFace.find({ deviceId })
             .populate('originalId', '_id imageUrl createdAt')
             .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await DownloadedFace.countDocuments({ deviceId });
-        const pages = Math.ceil(total / limit);
 
         res.json({
             success: true,
