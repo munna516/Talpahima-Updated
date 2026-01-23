@@ -56,23 +56,24 @@ export const downloadCartoon = async (req, res, next) => {
         }
 
         // Send cartoon image URL to Python AI Server for face-cut processing
-        const aiServerUrl = process.env.AI_SERVER_URL || 'http://localhost:8000';
+        const aiServerUrl = process.env.AI_FACE_SEGMENT_URL
         const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
-        const cartoonImageUrl = cartoon.imageUrl.startsWith('http') 
-            ? cartoon.imageUrl 
-            : `${baseUrl}${cartoon.imageUrl}`;
+        // const cartoonImageUrl = cartoon.imageUrl.startsWith('http')
+        //     ? cartoon.imageUrl
+        //     : `${baseUrl}${cartoon.imageUrl}`;
+        const cartoonImageUrl = "https://fcb-abj-pre.s3.amazonaws.com/img/jugadors/MESSI.jpg"
 
         let aiResponse;
         try {
             aiResponse = await axios.post(
-                `${aiServerUrl}/process-face-cut`,
+                `${aiServerUrl}/segment-head`,
                 {
                     image_url: cartoonImageUrl
                 },
                 {
                     headers: { 'Content-Type': 'application/json' },
                     responseType: 'arraybuffer', // Expect binary image data
-                    timeout: 60000 // 60 seconds timeout
+                    timeout: 180000 // 60 seconds timeout
                 }
             );
         } catch (error) {
@@ -84,7 +85,7 @@ export const downloadCartoon = async (req, res, next) => {
 
         // Python server returns face-cut image file buffer
         const faceCutBuffer = Buffer.from(aiResponse.data);
-        
+
         if (!faceCutBuffer || faceCutBuffer.length === 0) {
             return res.status(500).json({
                 success: false,

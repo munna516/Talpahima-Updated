@@ -97,7 +97,7 @@ Upload an image file and generate a cartoon version.
 ### 2. Regenerate Cartoon
 **POST** `/api/regenerate/:originalId`
 
-Regenerate a cartoon for an existing original image.
+Regenerate a cartoon for an existing original image. Returns the original image and all regenerated cartoons for that original.
 
 **Headers:**
 - `x-device-id`: `{UUID}` (required)
@@ -110,14 +110,35 @@ Regenerate a cartoon for an existing original image.
 {
   "success": true,
   "data": {
-    "cartoon": {
-      "id": "507f1f77bcf86cd799439013",
-      "imageUrl": "http://server/uploads/temp/1736123456791_507f1f77bcf86cd799439011.jpg",
-      "createdAt": "2024-01-05T20:35:12.000Z"
-    }
+    "original": {
+      "id": "507f1f77bcf86cd799439011",
+      "imageUrl": "http://server/uploads/originals/1736123456789_abc123.jpg",
+      "fileSize": 2456789,
+      "createdAt": "2024-01-05T20:33:55.000Z"
+    },
+    "cartoons": [
+      {
+        "id": "507f1f77bcf86cd799439013",
+        "imageUrl": "http://server/uploads/temp/1736123456791_507f1f77bcf86cd799439011.jpg",
+        "fileSize": 1892345,
+        "createdAt": "2024-01-05T20:35:12.000Z"
+      },
+      {
+        "id": "507f1f77bcf86cd799439012",
+        "imageUrl": "http://server/uploads/temp/1736123456790_507f1f77bcf86cd799439011.jpg",
+        "fileSize": 1923456,
+        "createdAt": "2024-01-05T20:33:56.000Z"
+      }
+    ],
+    "count": 2
   }
 }
 ```
+
+**Note:** 
+- The `cartoons` array includes all regenerated cartoons for the original image (sorted by most recent first)
+- The newly generated cartoon will be the first item in the array
+- All cartoons are temporary and will be deleted when the user downloads one
 
 ---
 
@@ -220,43 +241,7 @@ Get all downloaded face-cut images with pagination support.
 }
 ```
 
----
-
-### 6. Get All Regenerated Cartoons
-**GET** `/api/cartoons`
-
-Get all temporary regenerated cartoons. Optionally filter by originalId.
-
-**Headers:**
-- `x-device-id`: `{UUID}` (required)
-
-**Query Parameters:**
-- `originalId`: Filter by original image ObjectId (optional)
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "cartoons": [
-      {
-        "id": "507f1f77bcf86cd799439012",
-        "imageUrl": "http://server/uploads/temp/1736123456790_507f1f77bcf86cd799439011.jpg",
-        "createdAt": "2024-01-05T20:33:56.000Z",
-        "original": {
-          "id": "507f1f77bcf86cd799439011",
-          "imageUrl": "http://server/uploads/originals/1736123456789_abc123.jpg",
-          "createdAt": "2024-01-05T20:33:55.000Z"
-        }
-      }
-    ]
-  }
-}
-```
-
----
-
-### 7. Root Route
+### 6. Root Route
 **GET** `/`
 
 Check if server is running.
@@ -268,7 +253,7 @@ Server is Running
 
 ---
 
-### 8. Health Check
+### 7. Health Check
 **GET** `/health`
 
 Check server health status.

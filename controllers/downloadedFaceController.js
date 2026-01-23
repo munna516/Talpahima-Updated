@@ -4,9 +4,6 @@ import { getOrCreateDevice } from './deviceController.js';
 export const getAllDownloadedFaces = async (req, res, next) => {
     try {
         const { deviceId } = req;
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 50;
-        const skip = (page - 1) * limit;
 
         await getOrCreateDevice(deviceId);
 
@@ -33,12 +30,7 @@ export const getAllDownloadedFaces = async (req, res, next) => {
                     },
                     createdAt: face.createdAt
                 })),
-                pagination: {
-                    page,
-                    limit,
-                    total,
-                    pages
-                }
+
             }
         });
     } catch (error) {
