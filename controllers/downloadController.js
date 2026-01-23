@@ -58,11 +58,17 @@ export const downloadCartoon = async (req, res, next) => {
         // Send cartoon image URL to Python AI Server for face-cut processing
         const aiServerUrl = process.env.AI_FACE_SEGMENT_URL
         const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
-        // const cartoonImageUrl = cartoon.imageUrl.startsWith('http')
-        //     ? cartoon.imageUrl
-        //     : `${baseUrl}${cartoon.imageUrl}`;
-        const cartoonImageUrl = "https://fcb-abj-pre.s3.amazonaws.com/img/jugadors/MESSI.jpg"
+        const cartoonImageUrl = cartoon.imageUrl.startsWith('http')
+            ? cartoon.imageUrl
+            : `${baseUrl}${cartoon.imageUrl}`;
 
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                cartoonImageUrl: cartoonImageUrl
+            }
+        });
         let aiResponse;
         try {
             aiResponse = await axios.post(
