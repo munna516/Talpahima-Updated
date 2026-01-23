@@ -62,13 +62,6 @@ export const downloadCartoon = async (req, res, next) => {
             ? cartoon.imageUrl
             : `${baseUrl}${cartoon.imageUrl}`;
 
-
-        return res.status(200).json({
-            success: true,
-            data: {
-                cartoonImageUrl: cartoonImageUrl
-            }
-        });
         let aiResponse;
         try {
             aiResponse = await axios.post(
