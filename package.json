@@ -8,18 +8,21 @@
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
-  "keywords": ["express", "mongodb", "api"],
+  "keywords": [
+    "express",
+    "mongodb",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2",
+    "form-data": "^4.0.0",
     "mongoose": "^8.0.3",
     "multer": "^1.4.5-lts.1",
-    "dotenv": "^16.3.1",
-    "axios": "^1.6.2",
-    "uuid": "^9.0.1",
-    "form-data": "^4.0.0"
-  },
-  "devDependencies": {}
+    "replicate": "^1.4.0",
+    "uuid": "^9.0.1"
+  }
 }
-

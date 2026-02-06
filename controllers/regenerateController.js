@@ -1,4 +1,4 @@
-import axios from 'axios';
+import Replicate from "replicate";
 import mongoose from 'mongoose';
 import FormData from 'form-data';
 import Original from '../models/Original.js';
@@ -51,88 +51,32 @@ export const regenerateCartoon = async (req, res, next) => {
             });
         }
 
-        // Send image file to Python AI Server
-        const formData = new FormData();
-        formData.append('image', originalImageBuffer, {
-            filename: original.filename,
-            contentType: original.mimeType
+        const replicate = new Replicate({
+            auth: process.env.REPLICATE_API_TOKEN,
         });
 
-        const aiServerUrl = process.env.AI_SERVER_URL || 'http://localhost:8000';
+        const imageBuffer = originalImageBuffer.toString('base64');
+        const dataURI = `data:${original.mimeType};base64,${imageBuffer}`;
 
-        let aiResponse;
-        try {
-            aiResponse = await axios.post(
-                `${aiServerUrl}/generate-cartoon`,
-                formData,
-                {
-                    headers: formData.getHeaders(),
-                    responseType: 'arraybuffer', // Expect binary image data (PNG)
-                    timeout: 180000 // 3 minutes timeout (matching Python server)
-                }
-            );
-        } catch (error) {
-            // Better error message handling
-            let errorMessage = 'AI server error';
-            if (error.response) {
-                // Try to parse error response
-                if (error.response.data) {
-                    try {
-                        let errorData = error.response.data;
 
-                        // If it's a buffer, convert to string
-                        if (Buffer.isBuffer(errorData)) {
-                            errorData = errorData.toString('utf-8');
-                        }
+        const input = {
+            input_image: dataURI,
+        };
 
-                        // If it's an object, try to extract message
-                        if (typeof errorData === 'object' && errorData !== null) {
-                            // FastAPI uses 'detail' field for errors
-                            errorMessage = errorData.detail || errorData.error || errorData.message || JSON.stringify(errorData);
-                        }
-                        // If it's a string, check if it's JSON
-                        else if (typeof errorData === 'string') {
-                            if (errorData.startsWith('{') || errorData.startsWith('[')) {
-                                try {
-                                    const parsed = JSON.parse(errorData);
-                                    errorMessage = parsed.detail || parsed.error || parsed.message || errorData;
-                                } catch {
-                                    errorMessage = errorData;
-                                }
-                            } else {
-                                errorMessage = errorData;
-                            }
-                        } else {
-                            errorMessage = String(errorData);
-                        }
-                    } catch (parseError) {
-                        errorMessage = error.response.statusText || error.message || 'Unknown error';
-                    }
-                } else {
-                    errorMessage = error.response.statusText || error.message || 'Unknown error';
-                }
-            } else if (error.request) {
-                errorMessage = 'Failed to connect to AI server. Please check if the AI server is running.';
-            } else {
-                errorMessage = error.message || 'Unknown error occurred';
-            }
+        const output = await replicate.run("flux-kontext-apps/cartoonify", { input });
 
-            // Provide more helpful error message for 404 errors
-            if (error.response?.status === 404) {
-                return res.status(500).json({
-                    success: false,
-                    error: `AI server endpoint not found. Please check if the endpoint '/generate-cartoon' exists on the Python server at ${aiServerUrl}. Error: ${errorMessage}`
-                });
-            }
+        // To access the file URL:
+        console.log("Replicate output:", output);
 
-            return res.status(500).json({
-                success: false,
-                error: `AI server error: ${errorMessage}`
-            });
+        // Convert Replicate output stream to buffer
+        const chunks = [];
+        for await (const chunk of output) {
+            chunks.push(chunk);
         }
 
+
         // Python server returns image file buffer
-        const cartoonImageBuffer = Buffer.from(aiResponse.data);
+        const cartoonImageBuffer = Buffer.from(chunks);
 
         if (!cartoonImageBuffer || cartoonImageBuffer.length === 0) {
             return res.status(500).json({
