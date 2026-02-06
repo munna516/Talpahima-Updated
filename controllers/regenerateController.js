@@ -65,18 +65,14 @@ export const regenerateCartoon = async (req, res, next) => {
 
         const output = await replicate.run("flux-kontext-apps/cartoonify", { input });
 
-        // To access the file URL:
-        console.log("Replicate output:", output);
-
         // Convert Replicate output stream to buffer
         const chunks = [];
         for await (const chunk of output) {
             chunks.push(chunk);
         }
 
-
         // Python server returns image file buffer
-        const cartoonImageBuffer = Buffer.from(chunks);
+        const cartoonImageBuffer = Buffer.concat(chunks);
 
         if (!cartoonImageBuffer || cartoonImageBuffer.length === 0) {
             return res.status(500).json({

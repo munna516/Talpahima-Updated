@@ -72,9 +72,6 @@ export const uploadImage = async (req, res, next) => {
 
         const output = await replicate.run("flux-kontext-apps/cartoonify", { input });
 
-        // To access the file URL:
-        console.log("Replicate output:", output);
-
         // Convert Replicate output stream to buffer
         const chunks = [];
         for await (const chunk of output) {
